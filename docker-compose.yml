@@ -37,6 +37,7 @@ services:
       NODE_ENV: development # or production
       DATABASE_CLIENT: ${DATABASE_CLIENT}
       DATABASE_HOST: database
+      PUBLIC_URL: ${PUBLIC_URL}
       DATABASE_PORT: ${DATABASE_PORT}
       DATABASE_NAME: ${DATABASE_NAME}
       DATABASE_USERNAME: ${DATABASE_USERNAME}
