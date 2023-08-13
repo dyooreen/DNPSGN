@@ -1,0 +1,70 @@
+version: "3"
+services:
+  web_server:
+    restart: always
+    platform: linux/amd64 #for platform error on Apple M1 chips
+    container_name: web_server
+    image: nginx
+    ports:
+      - 80:80/tcp
+    environment:
+      NGINX_PORT: 80
+      NGINX_HOST: ${SERVER_NAME}
+    volumes:
+      - ./app/web_server/conf.d:/etc/nginx/conf.d
+      - ./app/letsencrypt:/etc/letsencrypt
+    links:
+      - strapi:strapi
+      - nextjs:nextjs
+  node:
+    image: node:18.17.1-slim
+    entrypoint: [ 'node' ]
+  npm:
+    image: node:18.17.1-slim
+    working_dir: /srv/app
+    volumes:
+      - ./app/next:/srv/app
+    entrypoint: [ 'npm' ]
+  npx:
+    image: node:18.17.1-slim
+    working_dir: /srv/app
+    volumes:
+      - ./app/next:/srv/app
+    entrypoint: [ 'npx' ]
+  strapi:
+    image: naskio/strapi
+    platform: linux/amd64 #for platform error on Apple M1 chips
+    environment:
+      NODE_ENV: development # or production
+      DATABASE_CLIENT: ${DATABASE_CLIENT}
+      DATABASE_HOST: database
+      DATABASE_PORT: ${DATABASE_PORT}
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+    volumes:
+      - ./app/strapi:/srv/app
+    depends_on:
+      - database
+
+  database:
+    container_name: database
+    platform: linux/amd64 #for platform error on Apple M1 chips
+    restart: unless-stopped
+    env_file: .env
+    image: postgres:12.0-alpine
+    environment:
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+    volumes:
+      - ./app/db:/var/lib/postgresql/data/ # if you want to use a bind folder
+  nextjs:
+    image: node:18.17.1-slim
+    restart: always
+    working_dir: /srv/app
+    volumes:
+      - ./app/next:/srv/app
+    command: sh -c "npm run dev"
+    env_file:
+      - .env
