@@ -17,19 +17,19 @@ services:
       - nextjs:nextjs
   node:
     image: node:18.17.1-slim
-    entrypoint: [ 'node' ]
+    entrypoint: ["node"]
   npm:
     image: node:18.17.1-slim
     working_dir: /srv/app
     volumes:
       - ./app/next:/srv/app
-    entrypoint: [ 'npm' ]
+    entrypoint: ["npm"]
   npx:
     image: node:18.17.1-slim
     working_dir: /srv/app
     volumes:
       - ./app/next:/srv/app
-    entrypoint: [ 'npx' ]
+    entrypoint: ["npx"]
   strapi:
     image: naskio/strapi
     platform: linux/amd64 #for platform error on Apple M1 chips
